@@ -85,4 +85,23 @@ class TestAuth(TestCase):
         response = self.client.post(self.login_url, data, content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['success'], 'Successful login')
+    
+    def test_login_POST_missing_field(self):
+        data = {
+            'username' : 'testuser',
+            # Missing email and password fields
+        }
+        response = self.client.post(self.login_url, data, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['missing fields'], 'Username, password, and email are all required')
+        
+    def test_login_POST_invalid_email(self):
+        data = {
+            'username' : 'testuser',
+            'email' : 'testuser@.com',
+            'password' : 'testpassword123'
+        }
+        response = self.client.post(self.login_url, data, content_type='application/json')
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.data['error'], 'Enter a valid email address')
         
