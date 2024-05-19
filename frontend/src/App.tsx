@@ -3,16 +3,23 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import 'bootstrap/dist/css/bootstrap.css'
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import Team from "./pages/Team";
 
 function App() {
 
   return (
     <>
       <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-        </Routes>
+        <Layout>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/team/:team_name" element={<Team />} />  
+          </Routes>
+        </Layout>
       </Router>
     </>
   );
