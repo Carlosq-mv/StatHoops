@@ -10,7 +10,7 @@ interface Props {
 
 const Layout = ({children}: Props) => {
   const location = useLocation();
-  const isAuthPage = location.pathname === "/login" || location.pathname === "/signup";
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/404";
   return (
     <>
       <DarkMode>
