@@ -1,4 +1,5 @@
 import AxiosInstance from '../components/Axios'
+import api from '../api';
 import React, { useState } from 'react';
 import FormField from '../components/FormField';
 import IconButton from '@mui/material/IconButton';
@@ -9,9 +10,11 @@ import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import Alert from '@mui/material/Alert';
 import { Link } from 'react-router-dom';
-
+import { useNavigate } from 'react-router-dom';
+import { ACCESS_TOKEN, REFRESH_TOKEN } from '../constants';
 
 const Login = () => {
+  const navigate = useNavigate();
   
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -29,27 +32,17 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit =  async (event: React.FormEvent) => {
     event.preventDefault();
-    AxiosInstance.post('/api/login/', formData)
-    .then(response => {
-      console.log(response.data);
-      setFormData({
-        password: '',
-        email: '',
-        username: ''
-      });
-      setErrorMessage('');
-      navigator
-    })
-    .catch(error => {
-      console.log(error.response.data);
-      if(error.response.data['missing fields'])
-        setErrorMessage('All fields required');
 
-      if(error.response.data.error)
-        setErrorMessage(error.response.data.error);
-    })
+    try {
+      const response = await api.post('/api/token/', formData)
+      localStorage.setItem(ACCESS_TOKEN, response.data.access);
+      localStorage.setItem(REFRESH_TOKEN, response.data.refresh);
+      navigate('/home');
+    } catch (error) {
+      alert(error)
+    }
   }
 
 

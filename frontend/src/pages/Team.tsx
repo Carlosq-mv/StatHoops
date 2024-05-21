@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom'
 import AxiosInstance from '../components/Axios'
 import { useEffect, useState } from 'react'
-
+import api from '../api';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
@@ -62,11 +62,11 @@ const Team = () => {
     }, [team_name]);
 
     const fetchTeamInfo = () => {
-        AxiosInstance.get(`/api/team/${team_name}`)
+        api.get(`/nba/team/${team_name}`)
         .then(response => {
-            console.log(response.data.teams)
-            console.log(team_name)
-            const data = response.data.teams;
+            console.log(response.data.roster)
+
+            const data = response.data.roster;
             const transformedData: TeamInfo[] = data.TeamID.map((_: any, index: number) => ({
                 id: data.TeamID[index],
                 season: data.SEASON[index],
@@ -97,7 +97,7 @@ const Team = () => {
     <div>
       
         <Stack direction="row" spacing={2}>
-            <Avatar src={`../public/logos/${team_name}.png`} />
+            <Avatar src={`/logos/${team_name}.png`} />
             <h1>{team_name}</h1>
         </Stack>
       

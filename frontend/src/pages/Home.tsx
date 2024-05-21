@@ -11,6 +11,7 @@ import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
 import { Card, CardContent, ListItemButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
+import api from '../api';
 
 interface Team {
     id: number;
@@ -25,16 +26,27 @@ interface Team {
 const Home = () => {
     const navigator = useNavigate();
     const [teams, setTeams] = useState<Team[]>([]);
+    const [user, setUser] = useState('');
     
     useEffect(() => {
         fetchTeams();
       }, []);
       
     const fetchTeams = () => {
-        AxiosInstance.get('/api/home')
+        api.get('/nba/home/')
         .then(response => {
-            console.log(response.data.teams);
+            console.log(response.data);
             setTeams(response.data.teams)
+            setUser(response.data.user.username)
+        })
+        .catch(error => {
+            console.log(error.response.data)
+        })
+    }
+    const followTeam = (team_name: string) => {
+        api.post(`nba/team/${team_name}/follow/`)
+        .then(response => {
+            console.log(response.data);
         })
         .catch(error => {
             console.log(error.response.data)
@@ -46,6 +58,7 @@ const Home = () => {
     
   return (
     <>
+        {user}
         <Box sx={{ padding: 2, textAlign: 'center'  }}>
             <Typography variant="h4" gutterBottom>
                 Stat Hoops
@@ -70,6 +83,7 @@ const Home = () => {
                                     variant="outlined"
                                     startIcon={<FavoriteBorderIcon />}
                                     sx={{ textTransform: 'none' }}
+                                    onClick={() => followTeam(team.full_name)}
                                 >
                                     Follow
                                 </Button>

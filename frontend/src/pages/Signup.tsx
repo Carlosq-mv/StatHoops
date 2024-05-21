@@ -9,8 +9,11 @@ import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import FormField from '../components/FormField'
 import { Link } from 'react-router-dom';
+import api from '../api';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState({
@@ -27,27 +30,14 @@ const Signup = () => {
     });
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    AxiosInstance.post('/api/create-account/', formData)
-    .then(response => {
-      console.log(response.data);
-      setFormData({
-        password: '',
-        email: '',
-        username: ''
-      });
-      setErrorMessage('');
-      
-    })
-    .catch(error => {
-      console.log(error.response.data);
-      if(error.response.data['missing fields'])
-        setErrorMessage('All fields required');
-
-      if(error.response.data.error)
-        setErrorMessage(error.response.data.error);
-    });
+    try {
+      const response = await api.post('/api/create-account/', formData)
+      navigate('/login')
+    } catch(error) {
+      alert(error)
+    }
   }
   
   const handleClickShowPassword = () => setShowPassword((show) => !show);
