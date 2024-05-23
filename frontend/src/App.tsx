@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Team from "./pages/Team";
 import NotFound from "./pages/NotFound";
 import ProtectedRoutes from "./components/ProtectedRoutes";
+import MyTeams from "./pages/MyTeams";
 
 function Logout() {
   localStorage.clear()
@@ -30,6 +31,7 @@ function App() {
             <Route path="/logout" element={<Logout />} />
             <Route path="/home" element={<ProtectedRoutes> <Home/> </ProtectedRoutes>} />
             <Route path="/team/:team_name" element={<ProtectedRoutes> <Team/> </ProtectedRoutes>} />  
+            <Route path="/myteams" element={<ProtectedRoutes> <MyTeams/> </ProtectedRoutes>} />  
             <Route path="/404" element={<NotFound />} />
             <Route path="*" element={<Navigate to="/404" />} />
           </Routes>
