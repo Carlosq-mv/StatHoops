@@ -18,10 +18,11 @@ import { ColorModeContext } from './DarkMode';
 import IconButton from "@mui/material/IconButton";
 import SearchIcon from '@mui/icons-material/Search';
 import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const Sidebar = () => {
-    const theme = useTheme();
-const colorMode = React.useContext(ColorModeContext);
+  const theme = useTheme();
+  const colorMode = React.useContext(ColorModeContext);
   const drawerWidth = 230;
   const navigator = useNavigate();
   const handleClick = (page: string) => {
@@ -34,9 +35,10 @@ const colorMode = React.useContext(ColorModeContext);
           { name: "StatHoops", icon: <SportsBasketballIcon />},
           { name: "Home", icon: <HomeIcon /> },
           { name: "Search", icon: <SearchIcon /> },
-          { name: "My Teams", icon: <WorkspacesIcon /> },
+          { name: "MyTeams", icon: <WorkspacesIcon /> },
           { name: "Profile", icon: <AccountCircleIcon /> },
           { name: "Settings", icon: <SettingsIcon /> },
+          { name: "Logout", icon: <LogoutIcon />}
         ].map((obj) => (
           <ListItem key={obj.name} disablePadding>
             <ListItemButton onClick={() => handleClick(obj.name.toLowerCase())} sx={{ '&:hover': { bgcolor: theme.palette.action.hover } }}>
