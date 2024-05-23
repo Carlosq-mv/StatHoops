@@ -1,25 +1,17 @@
 from typing import Any
 from rest_framework import status
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
-from nba_api.stats.static import teams
-from nba_api.stats.endpoints import commonteamroster
-from nba_api.stats.endpoints import playercareerstats
-from datetime import datetime
-from .models import Team
-from .serializers import TeamSerializer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .utils.nba_utils import Nba
 from auth_app.serializers import UserSerializer
-from .models import Team
+from .serializers import TeamSerializer, FranchiseLeaderSerializer
+from .models import Team, FranchiseLeader
+from .utils.nba_utils import Nba
+from nba_api.stats.endpoints import commonteamroster
+
 
 class HomePageTeamsList(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.nba = Nba()
@@ -57,13 +49,48 @@ class FollowTeam(APIView):
         
     def post(self, request, team_name):
         user = request.user
-        user_serializer = UserSerializer(user)
-        
         team_id = self.nba.get_team_id(team_name)
-        team = Team.objects.create(team_name=team_name, team_id=team_id, user=user)
+        
+        t = Team.objects.filter(team_id=team_id, user=user).exists()
+        if t: 
+            Team.objects.get(team_id=team_id, user=user).delete()
+            return Response({'unfollow' : 'You are now un following this teams'}, status=status.HTTP_200_OK)
+        else:
+            team = self.nba.get_team(team_id)
+            stats = self.nba.franchise_leaders(team_id)
+            
+            new_user_team = Team.objects.create(team_name=team_name, team_id=team_id, user=user, city=team['city'], state=team['state'], abbreviation=team['abbreviation'], year_founded=team['year_founded'])
         return Response({'success' : 'new team followed'}, status=status.HTTP_201_CREATED)
     
 
-# @api_view(['POST'])
-# def follow_team(request, team_name):
-#     team_id = team_dict[team_name]
+class MyTeams(APIView):
+    permission_classes = [IsAuthenticated]
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.nba = Nba()
+    
+    def get(self, request):
+        user = request.user
+        teams = Team.objects.filter(user=user)
+        serializer = TeamSerializer(teams, many=True)
+        
+        return Response({'teams' : serializer.data})
+    
+
+class GetFranchiseLeaderData(APIView):
+    permission_classes = [IsAuthenticated]
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.nba = Nba()
+    
+    def get(self, request, team_id):
+        user = request.user
+        try:
+            team_data = FranchiseLeader.objects.get(TEAM_ID=team_id)
+        except:
+            return Response({'error' : 'data for team does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = FranchiseLeaderSerializer(team_data)
+
+        return Response({'success' : serializer.data}, status=status.HTTP_200_OK)
+        
