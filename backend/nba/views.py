@@ -7,7 +7,8 @@ from auth_app.serializers import UserSerializer
 from .serializers import TeamSerializer, FranchiseLeaderSerializer
 from .models import Team, FranchiseLeader
 from .utils.nba_utils import Nba
-from nba_api.stats.endpoints import commonteamroster
+from nba_api.stats.endpoints import commonteamroster, leaguestandings
+import pandas as pd
 
 
 class HomePageTeamsList(APIView):
@@ -26,6 +27,7 @@ class HomePageTeamsList(APIView):
         else:
             return Response({'error' : 'Could not fetch NBA teams.'}, status=status.HTTP_400_BAD_REQUEST)
 
+# TODO: Load Team Info into Database
 class TeamInfo(APIView):
     permission_classes = [IsAuthenticated]
     def __init__(self, **kwargs: Any) -> None:
@@ -93,4 +95,30 @@ class GetFranchiseLeaderData(APIView):
         serializer = FranchiseLeaderSerializer(team_data)
 
         return Response({'success' : serializer.data}, status=status.HTTP_200_OK)
-        
+
+class GetNBAStandings(APIView):
+    permission_classes = [IsAuthenticated]
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.nba = Nba()
+    
+    def get(self, request):
+        standings = leaguestandings.LeagueStandings()
+        standings_df = standings.get_data_frames()[0]
+
+        # Filter the standings for the relevant columns
+        standings_df = standings_df[['TeamID', 'TeamCity', 'TeamName', 'Conference', 'PlayoffRank']]
+
+        # Sort by conference and playoff rank
+        standings_df = standings_df.sort_values(by=['Conference', 'PlayoffRank'])
+
+        # Separate into conferences
+        east_teams = standings_df[standings_df['Conference'] == 'East'].head(16)
+        west_teams = standings_df[standings_df['Conference'] == 'West'].head(16)
+
+        # Convert to a more readable format
+        east_standings = east_teams[['TeamCity', 'TeamName']].reset_index(drop=True)
+        west_standings = west_teams[['TeamCity', 'TeamName']].reset_index(drop=True)
+
+    
+        return Response({'east' : east_standings, 'west' : west_standings})

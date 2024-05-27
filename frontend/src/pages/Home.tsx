@@ -13,6 +13,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import api from '../api';
 import IconButton from '@mui/material/IconButton';
 import { listOfTeam } from '../constants';
+import Loading from '../components/Loading';
 interface MyTeams {
     team_name: string;
     team_id: number;
@@ -22,10 +23,13 @@ interface MyTeams {
 const Home = () => {
     const [myTeams, setMyTeams] = useState<MyTeams[]>([]);
     const navigator = useNavigate();
+    const [isLoading, setIsLoading] = useState(false)
     
 
     useEffect(() => {
+        setIsLoading(true);
         fetchMyTeams();
+        setIsLoading(false)
     }, []);
 
     const fetchMyTeams = () => {
@@ -53,6 +57,9 @@ const Home = () => {
     const handleClick = (team_name: string) => {
         navigator(`/team/${team_name}`)
     }
+    if(isLoading) {
+        return <Loading></Loading>
+    }
     
   return (
         <>
@@ -77,7 +84,7 @@ const Home = () => {
                                     </CardContent>
 
                                     <ListItemSecondaryAction sx={{ right: 15 }}>
-                                        <IconButton sx={{ textTransform: 'none', color: 'blue'}} onClick={() => followTeam(key)}>
+                                        <IconButton sx={{ textTransform: 'none', color: '#737CCF'}} onClick={() => followTeam(key)}>
                                             {myTeams.some(myTeam => myTeam.team_name === key) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                                         </IconButton>
                                     </ListItemSecondaryAction>
